@@ -5,7 +5,7 @@ import queries from '../queries/getQueries.ts';
 
 const getByLocation = (req: Request, res: Response): any => {
     const id = req.params.id;
-    if (!isNaN(Number(id))) {
+    if (isNaN(Number(id))) {
         res.status(400).send('id provided is not a number')
     }
     pool.query(queries.getByLocation, [id], (error: Error, results: any): any => {
@@ -19,7 +19,7 @@ const getByLocation = (req: Request, res: Response): any => {
 
 const getByCountry = (req: Request, res: Response): any => {
     const id = req.params.id;
-    if (!isNaN(Number(id))) {
+    if (isNaN(Number(id))) {
         res.status(400).send('id provided is not a number')
     }
     pool.query(queries.getByCountry, [id], (error: Error, results: any): any => {
@@ -33,7 +33,7 @@ const getByCountry = (req: Request, res: Response): any => {
 }
 const getByCategory = (req: Request, res: Response): any => {
     const id = req.params.id;
-    if (!isNaN(Number(id))) {
+    if (isNaN(Number(id))) {
         res.status(400).send('id provided is not a number')
     }
     pool.query(queries.getByCategory, [id], (error: Error, results: any): any => {
@@ -46,7 +46,7 @@ const getByCategory = (req: Request, res: Response): any => {
 }
 const getByInterest = (req: Request, res: Response): any => {
     const id = req.params.id;
-    if (!isNaN(Number(id))) {
+    if (isNaN(Number(id))) {
         res.status(400).send('id provided is not a number')
     }
     pool.query(queries.getByInterest, [id], (error: Error, results: any): any => {
@@ -72,3 +72,5 @@ const getByPrice = (req: Request, res: Response): any => {
 }
 
 export default { getByLocation, getByCountry, getByCategory, getByInterest, getByPrice }
+
+

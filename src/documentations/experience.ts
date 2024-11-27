@@ -6,7 +6,7 @@ export default {
         description: "API for managing experiences",
     },
     paths: {
-        "/experiencessss": {
+        "/experiences": {
             post: {
                 tags: ["Experience"],
                 summary: "Add a new experience",

@@ -5,19 +5,21 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon --exec ts-node server.ts"
-
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "express": "^4.19.2",
+    "express": "^4.21.1",
     "pg": "^8.12.0",
     "swagger-ui-express": "^5.0.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   },
   "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/pg": "^8.11.10",
+    "@types/swagger-ui-express": "^4.1.7",
     "nodemin": "^1.0.1",
     "nodemon": "^3.1.4"
   }

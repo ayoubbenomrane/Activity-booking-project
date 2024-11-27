@@ -27,7 +27,7 @@ const getExperiences = (req: Request, res: Response): void => {
 
 const getExperienceById = (req: Request, res: Response): void => {
     const id = req.params.id;
-    if (!isNaN(Number(id))) {
+    if (isNaN(Number(id))) {
         res.status(400).send('id provided is not a number')
     }
     pool.query(queries.getExperienceById, [id], (error: Error, results: any) => {
@@ -43,22 +43,22 @@ const getExperienceById = (req: Request, res: Response): void => {
 const addExperience = (req: Request, res: Response): void => {
     const { name, description, original_price, actual_price, duration, star_rating, destination_id, location_id, activity_provider_id, min_age, max_age } = req.body;
     const timePattern = /^([01]\d|2[0-3]):([0-5]\d)$/;
-    if (timePattern.test(duration)) {
+    if (!timePattern.test(duration)) {
         res.status(400).send("duration needs to be a valid time");
     }
-    if (!isNaN(Number(destination_id))) {
+    if (isNaN(Number(destination_id))) {
         res.status(400).send('destination id provided is not a number')
     }
-    if (!isNaN(Number(location_id))) {
+    if (isNaN(Number(location_id))) {
         res.status(400).send('location id provided is not a number')
     }
-    if (!isNaN(Number(activity_provider_id))) {
+    if (isNaN(Number(activity_provider_id))) {
         res.status(400).send('activity provider id provided is not a number')
     }
-    if (!isNaN(Number(min_age))) {
+    if (isNaN(Number(min_age))) {
         res.status(400).send('minimum age provided is not a number')
     }
-    if (!isNaN(Number(max_age))) {
+    if (isNaN(Number(max_age))) {
         res.status(400).send('maximum age provided is not a number')
     }
 
@@ -74,7 +74,7 @@ const addExperience = (req: Request, res: Response): void => {
 
 const deleteExperience = (req: Request, res: Response): void => {
     const id = req.params.id;
-    if (!isNaN(Number(id))) {
+    if (isNaN(Number(id))) {
         res.status(400).send('id provided is not a number')
     }
     // First, check if the experience exists

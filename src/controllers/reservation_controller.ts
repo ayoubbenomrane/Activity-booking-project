@@ -4,7 +4,7 @@ import queries from '../queries/reservation_query.ts';
 
 const makeReserevation = (req: Request, res: Response): void => {
     const id = req.params.id;
-    if (!isNaN(Number(id))) {
+    if (isNaN(Number(id))) {
         res.status(400).send('id provided is not a number')
     }
     const { name } = req.body;
@@ -26,7 +26,7 @@ const makeReserevation = (req: Request, res: Response): void => {
 }
 const getReserevations = (req: Request, res: Response): void => {
     const id = req.params.id;
-    if (!isNaN(Number(id))) {
+    if (isNaN(Number(id))) {
         res.status(400).send('id provided is not a number')
     }
     pool.query(queries.getReservations, [id], (error: Error, result: any): any => {
@@ -36,35 +36,59 @@ const getReserevations = (req: Request, res: Response): void => {
         }
         res.status(200).json(result.rows);
     });
-
-
 }
-const cancellationFees = async (req: Request, res: Response) => {
+
+
+const cancellationFees = (req: Request, res: Response): void => {
     const id = req.params.id;
-    if (!isNaN(Number(id))) {
-        res.status(400).send('id provided is not a number')
+
+    if (isNaN(Number(id))) {
+        res.status(400).json({ error: "Invalid reservation ID" });
+        return;
     }
-    const activity_time_id = await pool.query(queries.getActivityTime, [id]);
-    if (activity_time_id.rows.length === 0) {
-        return res.status(404).json({ error: 'Reservation not found' });
-    }
-    console.log(activity_time_id.rows[0].activity_time_id)
-    let result = await pool.query(queries.getActivityDateId, [activity_time_id.rows[0].activity_time_id]);
-    const { date_id, time } = result.rows[0];
-    console.log(date_id)
-    result = await pool.query(queries.getActivityDate, [date_id]);
-    const { activity_date, full_refund_days, partial_refund_days, partial_refund_rate } = result.rows[0];
 
-    const activity_time_stamp = new Date(`${activity_date}T${time}Z`);
-    const currentDate = new Date();
-    let difference = activity_time_stamp.getTime() - currentDate.getTime();
-    difference = difference / (1000 * 3600);
-    if (difference > full_refund_days * 24) { return res.status(200).send("100"); }
-    else if (difference > partial_refund_days * 24) { return res.status(200).send(partial_refund_rate.toISOString()); }
-    else { return res.status(200).send("0"); }
+    // Step 1: Fetch time_id and other details
+    pool.query(queries.getActivityTime, [id], (error, timeResult) => {
+        if (error || timeResult.rows.length === 0) {
+            res.status(404).json({ error: "Reservation not found or invalid data" });
+            return;
+        }
 
+        const { activity_time_id } = timeResult.rows[0];
+        console.log("Time Result:", timeResult.rows[0]);
 
-}
+        // Step 2: Fetch date information using activity_time_id
+        pool.query(queries.getActivityDate, [activity_time_id], (error, dateResult) => {
+            if (error || dateResult.rows.length === 0) {
+                res.status(404).json({ error: "Date information not found" });
+                return;
+            }
+
+            const { activity_date, full_refund_days, partial_refund_days, partial_refund_rate } =
+                dateResult.rows[0];
+            console.log("Date Result:", dateResult.rows[0]);
+
+            // Step 3: Calculate refund
+            if (!activity_date) {
+                res.status(500).json({ error: "Activity date is missing" });
+                return;
+            }
+
+            const activityTimeStamp = new Date(activity_date);
+            const currentDate = new Date();
+            const differenceInHours =
+                (activityTimeStamp.getTime() - currentDate.getTime()) / (1000 * 3600);
+
+            let refund = 0;
+            if (differenceInHours > full_refund_days * 24) refund = 100;
+            else if (differenceInHours > partial_refund_days * 24) refund = partial_refund_rate;
+
+            // Return the refund and time difference
+            res.status(200).json({ refund, differenceInHours });
+        });
+    });
+};
+
 
 
 export default { makeReserevation, getReserevations, cancellationFees };
